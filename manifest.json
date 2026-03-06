@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Minimal New Tab",
+  "version": "1.0.1",
+  "description": "Чистая страница новой вкладки с сохранением панели закладок. Адаптация к системной теме. Ничего лишнего.",
+  "homepage_url": "https://github.com/dituals758/minimal-new-tab",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [],
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}
