@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <style>
+    .bg{fill:#f6f6f6}
+    .ln{fill:#1e1e2f}
+    @media(prefers-color-scheme:dark){.bg{fill:#333}.ln{fill:#e8e8e8}}
+  </style>
+  <rect class="bg" x="16" y="12" width="96" height="104" rx="12" stroke="#1e1e2f" stroke-width="4"/>
+  <rect class="ln" x="28" y="28" width="72" height="4" rx="2" opacity=".7"/>
+  <rect class="ln" x="28" y="42" width="60" height="4" rx="2" opacity=".5"/>
+  <rect class="ln" x="28" y="56" width="68" height="4" rx="2" opacity=".7"/>
+  <rect class="ln" x="28" y="70" width="50" height="4" rx="2" opacity=".5"/>
+  <rect class="ln" x="28" y="84" width="64" height="4" rx="2" opacity=".7"/>
+  <rect class="ln" x="28" y="98" width="40" height="4" rx="2" opacity=".5"/>
+</svg>

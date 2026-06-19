@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Minimal New Tab",
-  "version": "1.0.2",
-  "description": "Чистая страница новой вкладки с блокнотом. Автосохранение записей.",
+  "version": "2.0.0",
+  "description": "Чистая страница новой вкладки с блокнотом. Автосохранение, резервная копия, Ctrl+S.",
   "homepage_url": "https://github.com/dituals758/minimal-new-tab/",
   "chrome_url_overrides": {
     "newtab": "./index.html"
@@ -10,8 +10,5 @@
   "permissions": ["storage"],
   "icons": {
     "128": "./icons/icon128.png"
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
   }
 }
