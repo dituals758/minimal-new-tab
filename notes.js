@@ -6,6 +6,7 @@ const editor = document.getElementById('editor');
 const statusEl = document.getElementById('status');
 
 let saveTimeout;
+let statusTimeout;
 let lastContent = '';
 let isSaving = false;
 
@@ -21,25 +22,25 @@ const msg = {
 };
 
 function showStatus(text, isError) {
+    clearTimeout(statusTimeout);
     statusEl.textContent = text;
     statusEl.classList.add('show');
-    setTimeout(() => statusEl.classList.remove('show'), isError ? 3000 : 1500);
+    statusTimeout = setTimeout(() => statusEl.classList.remove('show'), isError ? 3000 : 1500);
 }
 
 function saveToSession(text) {
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ text, ts: Date.now() })); } catch (e) {}
+    try { sessionStorage.setItem(SESSION_KEY, text); } catch (e) {}
 }
 
 function saveNotes(show) {
     const text = editor.value;
     if (text === lastContent || isSaving) return;
-    if (new Blob([text]).size > MAX_SIZE) {
+    if (text.length * 3 > MAX_SIZE) {
         showStatus(msg.sizeErr + ' 4 МБ', true);
         return;
     }
     isSaving = true;
     if (show) showStatus(msg.saving);
-    saveToSession(text);
     chrome.storage.local.set({ [STORAGE_KEY]: text }, () => {
         isSaving = false;
         if (chrome.runtime.lastError) {
@@ -59,12 +60,12 @@ function loadNotes() {
         else if (chrome.runtime.lastError) showStatus(msg.loadErr, true);
 
         let backup = null;
-        try { const r = sessionStorage.getItem(SESSION_KEY); if (r) backup = JSON.parse(r); } catch (e) {}
+        try { backup = sessionStorage.getItem(SESSION_KEY); } catch (e) {}
 
         let text = saved;
         let fromBackup = false;
-        if (backup && backup.text && backup.text !== saved) {
-            text = backup.text;
+        if (backup && backup !== saved) {
+            text = backup;
             fromBackup = true;
             try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
         }
