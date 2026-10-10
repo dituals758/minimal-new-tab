@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Новая вкладка</title>
+    <link rel="icon" type="image/png" href="icons/icon128.png">
     <style>
         :root{--bg:#f6f6f6;--text:#1e1e2f;--placeholder:#9e9eae;--sb-track:rgba(0,0,0,.05);--sb-thumb:rgba(0,0,0,.2);--status-bg:rgba(246,246,246,.9);--focus:rgba(100,100,150,.4)}
         @media(prefers-color-scheme:dark){:root{--bg:#333;--text:#e8e8e8;--placeholder:#9e9e9e;--sb-track:rgba(255,255,255,.1);--sb-thumb:rgba(255,255,255,.25);--status-bg:rgba(51,51,51,.9);--focus:rgba(180,180,220,.5)}}
         *{margin:0;padding:0;box-sizing:border-box}
-        body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;display:flex;flex-direction:column}
+        body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column}
         .notebook{flex:1;display:flex;flex-direction:column;width:100%}
         .notes-editor{flex:1;background:transparent;border:none;outline:none;font-size:clamp(1rem,2.5vw,1.2rem);line-height:1.6;font-family:'Segoe UI',monospace;resize:none;color:inherit;padding:24px;overflow-y:auto;caret-color:currentColor}
         .notes-editor::-webkit-scrollbar{width:8px}
@@ -18,6 +19,7 @@
         .notes-editor:focus-visible{outline:none;box-shadow:0 0 0 2px var(--focus)}
         .status{position:fixed;bottom:20px;right:24px;font-size:.75rem;font-weight:500;color:var(--text);background:var(--status-bg);backdrop-filter:blur(12px);padding:6px 14px;border-radius:30px;box-shadow:0 2px 8px rgba(0,0,0,.05);pointer-events:none;opacity:0;transition:opacity .15s cubic-bezier(.2,.9,.4,1.1),transform .1s ease;transform:translateY(0);z-index:1000}
         .status.show{opacity:1;transform:translateY(-2px)}
+        .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
         @media(prefers-reduced-motion:reduce){.status,.status.show{transition:none;transform:none}}
         @media(forced-colors:active){.notes-editor{border:1px solid CanvasText}.notes-editor:focus-visible{outline:2px solid Highlight;outline-offset:2px}.status{border:1px solid CanvasText;background:Canvas}}
         @media(max-width:768px){.notes-editor{font-size:1rem;padding:20px}}
@@ -26,9 +28,10 @@
 </head>
 <body>
     <div class="notebook">
-        <textarea class="notes-editor" id="editor" placeholder="Начните писать...&#10;Всё сохраняется автоматически." spellcheck="true" autofocus></textarea>
+        <textarea class="notes-editor" id="editor" placeholder="Начните писать...&#10;Всё сохраняется автоматически." spellcheck="true" aria-label="Заметки"></textarea>
     </div>
-    <div class="status" id="status"></div>
+    <div class="status" id="status" aria-hidden="true"></div>
+    <div class="sr-only" id="srStatus" role="status" aria-live="polite"></div>
     <script src="./notes.js"></script>
 </body>
 </html>
