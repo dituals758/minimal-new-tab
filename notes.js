@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'minimal_notes';
 const BACKUP_KEY = 'pending_note_backup';
-const MAX_SIZE = (chrome.storage.local.QUOTA_BYTES || 5 * 1024 * 1024) - 4096;
+
 const BACKUP_DEBOUNCE_MS = 300;
 const SAVE_DEBOUNCE_MS = 200;
 const RETRY_DELAY_MS = 1000;
@@ -12,6 +12,7 @@ const srStatusEl = document.getElementById('srStatus');
 let saveTimeout;
 let backupTimeout;
 let lastContent = '';
+let lastRequestedValue = '';
 let isSaving = false;
 let pendingSave = false;
 let statusTimeout;
@@ -23,8 +24,6 @@ const msg = {
     restored: 'Восстановлено из черновика',
     external: 'Обновлено из другой вкладки',
     conflict: 'В другой вкладке есть изменения',
-    sizeErr: 'Превышен лимит',
-    quotaErr: 'Хранилище заполнено',
     saveErr: 'Ошибка сохранения',
     loadErr: 'Ошибка загрузки',
     syncErr: 'Ошибка синхронизации'
@@ -53,25 +52,15 @@ function clearBackup() {
 function saveToBackup(text) {
     try {
         localStorage.setItem(BACKUP_KEY, JSON.stringify({ text, ts: Date.now() }));
-    } catch (e) {}
+    } catch (e) {
+        // Если localStorage переполнен (лимит ~5МБ), просто игнорируем.
+        // Основное хранилище chrome.storage.local теперь безлимитно.
+    }
 }
 
 function saveToBackupDebounced(text) {
     clearTimeout(backupTimeout);
     backupTimeout = setTimeout(() => saveToBackup(text), BACKUP_DEBOUNCE_MS);
-}
-
-function byteSize(text) {
-    return new Blob([text]).size;
-}
-
-function formatSize(bytes) {
-    return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
-}
-
-function isQuotaError(e) {
-    const m = (e && e.message) || '';
-    return /quota/i.test(m) || /QUOTA_BYTES/.test(m);
 }
 
 async function saveNotes(show) {
@@ -83,18 +72,16 @@ async function saveNotes(show) {
         return;
     }
 
-    if (byteSize(text) > MAX_SIZE) {
-        showStatus(msg.sizeErr + ' ' + formatSize(MAX_SIZE), true, true);
-        return;
-    }
-
     if (isSaving) {
         pendingSave = true;
         return;
     }
 
     isSaving = true;
+    lastRequestedValue = text;
     if (show) showStatus(msg.saving);
+    
+    // Сразу пишем в локальный бэкап для страховки
     saveToBackup(text);
 
     try {
@@ -103,11 +90,7 @@ async function saveNotes(show) {
         clearBackup();
         if (show) showStatus(msg.saved);
     } catch (e) {
-        if (isQuotaError(e)) {
-            showStatus(msg.quotaErr, true, true);
-        } else {
-            showStatus(msg.saveErr, true, true);
-        }
+        showStatus(msg.saveErr, true, true);
     } finally {
         isSaving = false;
         if (pendingSave) {
@@ -168,6 +151,12 @@ chrome.storage.onChanged.addListener((changes, area) => {
     if (typeof newValue !== 'string') return;
     if (newValue === lastContent) return;
 
+    // Защита от эха собственного сохранения (race condition)
+    if (newValue === lastRequestedValue) {
+        lastContent = newValue;
+        return;
+    }
+
     if (editor.value !== lastContent) {
         showStatus(msg.conflict, true, true);
         return;
@@ -196,7 +185,16 @@ editor.addEventListener('blur', () => {
     saveNotes(true);
 });
 
-window.addEventListener('beforeunload', () => {
+// Флеш при скрытии вкладки — если пользователь переключается, успеваем записать.
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        clearTimeout(saveTimeout);
+        saveNotes(false);
+    }
+});
+
+// pagehide надёжнее beforeunload: срабатывает и при закрытии, и при bfcache.
+window.addEventListener('pagehide', () => {
     clearTimeout(backupTimeout);
     saveToBackup(editor.value);
     saveNotes(false);

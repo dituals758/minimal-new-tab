@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Новая вкладка</title>
-    <link rel="icon" type="image/png" href="icons/icon128.png">
+    <link rel="icon" type="image/png" href="icons/icon-32.png">
     <style>
         :root{--bg:#f6f6f6;--text:#1e1e2f;--placeholder:#9e9eae;--sb-track:rgba(0,0,0,.05);--sb-thumb:rgba(0,0,0,.2);--status-bg:rgba(246,246,246,.9);--focus:rgba(100,100,150,.4)}
         @media(prefers-color-scheme:dark){:root{--bg:#333;--text:#e8e8e8;--placeholder:#9e9e9e;--sb-track:rgba(255,255,255,.1);--sb-thumb:rgba(255,255,255,.25);--status-bg:rgba(51,51,51,.9);--focus:rgba(180,180,220,.5)}}
@@ -28,10 +28,11 @@
 </head>
 <body>
     <div class="notebook">
-        <textarea class="notes-editor" id="editor" placeholder="Начните писать...&#10;Всё сохраняется автоматически." spellcheck="true" aria-label="Заметки"></textarea>
+        <label for="editor" class="sr-only">Заметки</label>
+        <textarea class="notes-editor" id="editor" placeholder="Начните писать...&#10;Всё сохраняется автоматически." spellcheck="true"></textarea>
     </div>
     <div class="status" id="status" aria-hidden="true"></div>
     <div class="sr-only" id="srStatus" role="status" aria-live="polite"></div>
-    <script src="./notes.js"></script>
+    <script src="notes.js"></script>
 </body>
 </html>
